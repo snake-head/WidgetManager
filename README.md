@@ -1,4 +1,4 @@
-# collision_detect
+# demo
 
 ## Project setup
 ```

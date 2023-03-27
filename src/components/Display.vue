@@ -18,7 +18,7 @@
             Set Resolution:<input type="number" name="adjust" id="adjust" v-model="resolution">
             Polys in Scene:{{ numberOfPolys }}
         </div>
-        <div ref="vtkContainer"/>
+        <div ref="vtkContainer" style="width: 100%; height: 600px;"/>
     </div>
 </template>
 
@@ -58,7 +58,7 @@
             let widgetHandle = null;
             let renderer;
             let renderWindow;
-            let resolution = ref(200);
+            let resolution = ref(300);
             let numberOfPolys = ref(0);
 
             const { CaptureOn } = WidgetManagerConstants;
@@ -129,7 +129,7 @@
 
             onMounted(()=>{
                 const fullScreenRenderer = vtkGenericRenderWindow.newInstance({
-                    background: [0, 0, 0],
+                    background: [0.9, 0.9, 0.9],
                 });
                 fullScreenRenderer.setContainer(vtkContainer.value);
                 fullScreenRenderer.resize()
@@ -248,3 +248,9 @@
         }
     }
 </script>
+
+<style>
+    .left {
+  float: left;
+}
+</style>
