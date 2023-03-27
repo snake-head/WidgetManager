@@ -8,18 +8,22 @@
 -->
 <template>
     <div id="display">
-        <div ref="vtkContainer"/>
         <div>
-            <button @click="addBall">添加球</button>
-            <button @click="showR">显示半径</button>
-            <button @click="addLine">添加线</button>
-            <button @click="addMonitor">FPSMonitor</button>
+            <button @click="addSphere">Add SphereWidget</button>
+            <!-- <button @click="showR">显示半径</button> -->
+            <button @click="addLine">Add LineWidget</button>
+            <button @click="addMonitor">Add FPSMonitor</button>
+            <button @click="removeSphere">Remove Widget</button>
+            <br>
+            Set Resolution:<input type="number" name="adjust" id="adjust" v-model="resolution">
+            Polys in Scene:{{ numberOfPolys }}
         </div>
+        <div ref="vtkContainer"/>
     </div>
 </template>
 
 <script>
-    import {ref, onMounted} from 'vue';
+    import {ref, onMounted, watch} from 'vue';
     import '@kitware/vtk.js/favicon';
 
     // Load the rendering pieces we want to use (for both WebGL and WebGPU)
@@ -54,6 +58,8 @@
             let widgetHandle = null;
             let renderer;
             let renderWindow;
+            let resolution = ref(200);
+            let numberOfPolys = ref(0);
 
             const { CaptureOn } = WidgetManagerConstants;
 
@@ -133,12 +139,12 @@
                 // cube = vtkCubeSource.newInstance();
                 cube = vtkSphereSource.newInstance({
                     radius: 1.0,
-                    phiResolution: 1000,
-                    thetaResolution: 1000,
+                    phiResolution: resolution.value,
+                    thetaResolution: resolution.value,
                 });
                 const polyData = cube.getOutputData();
-                const numberOfPolys = polyData.getNumberOfPolys();
-                console.log(`Number of polygons: ${numberOfPolys}`);
+                numberOfPolys.value = polyData.getNumberOfPolys();
+                console.log(`Number of polygons: ${numberOfPolys.value}`);
                 const mapper = vtkMapper.newInstance();
                 const actor = vtkActor.newInstance();
 
@@ -166,7 +172,13 @@
 
             })
 
-            function addBall(){
+            watch(resolution, (newVal, oldVal) => {
+               cube.setPhiResolution(newVal)
+               cube.setThetaResolution(newVal)
+               numberOfPolys.value = cube.getOutputData().getNumberOfPolys()
+            });
+
+            function addSphere(){
                 // widgetManager.releaseFocus(widget);
                 // widget = vtkSphereWidget.newInstance({
                     // dependingPoints: [2,2,2,1,1,1],
@@ -186,6 +198,13 @@
                 widget.placeWidget(cube.getOutputData().getBounds());
                 widgetHandle = widgetManager.addWidget(widget);
                 widgetManager.grabFocus(widget);
+            }
+
+            function removeSphere(){
+                if(widgetManager.getWidgets()[0]){
+                    var number = widgetManager.getWidgets().length;
+                    widgetManager.removeWidget(widgetManager.getWidgets()[number-1])
+                }
             }
 
             function addLine(){
@@ -218,10 +237,13 @@
 
             return {
                 vtkContainer,
-                addBall,
+                addSphere,
                 showR,
                 addLine,
-                addMonitor
+                addMonitor,
+                removeSphere,
+                resolution,
+                numberOfPolys
             }
         }
     }
