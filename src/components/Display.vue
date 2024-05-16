@@ -2,8 +2,8 @@
  * @Description: 
  * @Author: zhuyc9
  * @Date: 2022-11-02 21:04:42
- * @LastEditTime: 2022-11-02 22:04:52
- * @LastEditors: zhuyc9
+ * @LastEditTime: 2024-05-16 15:16:08
+ * @LastEditors: ZhuYichen
  * @Reference: 
 -->
 <template>
@@ -11,9 +11,10 @@
         <div>
             <button @click="addSphere">Add SphereWidget</button>
             <!-- <button @click="showR">显示半径</button> -->
-            <button @click="addLine">Add LineWidget</button>
+            <button @click="addBracket">Add BracketWidget</button>
             <button @click="addMonitor">Add FPSMonitor</button>
             <button @click="removeSphere">Remove Widget</button>
+            <input type="file" @change="handleFile" />
             <br>
             Set Resolution:<input type="number" name="adjust" id="adjust" v-model="resolution">
             Polys in Scene:{{ numberOfPolys }}
@@ -40,10 +41,12 @@
     import vtkSphereWidget from '@kitware/vtk.js/Widgets/Widgets3D/SphereWidget';
     // import vtkLineWidget from '../reDesignVTK/Widgets/Widgets3D/LineWidget'
     import vtkLineWidget from '@kitware/vtk.js/Widgets/Widgets3D/LineWidget'
+    import vtkBracketWidget from '../reDesignVTK/Widgets/Widgets3D/BracketWidget'
     // import vtkWidgetManager from '../reDesignVTK/Widgets/Core/WidgetManager';
     import vtkWidgetManager from '@kitware/vtk.js/Widgets/Core/WidgetManager';
     import WidgetManagerConstants from '@kitware/vtk.js/Widgets/Core/WidgetManager/Constants';
     import vtkFPSMonitor from '@kitware/vtk.js/Interaction/UI/FPSMonitor';
+    import vtkSTLReader from '@kitware/vtk.js/IO/Geometry/STLReader';
     // import controlPanel from './controlPanel.html';
 
     export default{
@@ -137,22 +140,22 @@
                 renderWindow = fullScreenRenderer.getRenderWindow();
 
                 // cube = vtkCubeSource.newInstance();
-                cube = vtkSphereSource.newInstance({
-                    radius: 1.0,
-                    phiResolution: resolution.value,
-                    thetaResolution: resolution.value,
-                });
-                const polyData = cube.getOutputData();
-                numberOfPolys.value = polyData.getNumberOfPolys();
-                console.log(`Number of polygons: ${numberOfPolys.value}`);
-                const mapper = vtkMapper.newInstance();
-                const actor = vtkActor.newInstance();
+                // cube = vtkSphereSource.newInstance({
+                //     radius: 1.0,
+                //     phiResolution: resolution.value,
+                //     thetaResolution: resolution.value,
+                // });
+                // const polyData = cube.getOutputData();
+                // numberOfPolys.value = polyData.getNumberOfPolys();
+                // console.log(`Number of polygons: ${numberOfPolys.value}`);
+                // const mapper = vtkMapper.newInstance();
+                // const actor = vtkActor.newInstance();
 
-                actor.setMapper(mapper);
-                mapper.setInputConnection(cube.getOutputPort());
-                actor.getProperty().setOpacity(0.2);
+                // actor.setMapper(mapper);
+                // mapper.setInputConnection(cube.getOutputPort());
+                // actor.getProperty().setOpacity(0.2);
 
-                renderer.addActor(actor);
+                // renderer.addActor(actor);
 
                 // ----------------------------------------------------------------------------
                 // Widget manager
@@ -195,7 +198,7 @@
 
                 widgetManager.releaseFocus(widget);
                 widget = vtkSphereWidget.newInstance();
-                widget.placeWidget(cube.getOutputData().getBounds());
+                // widget.placeWidget(cube.getOutputData().getBounds());
                 widgetHandle = widgetManager.addWidget(widget);
                 widgetManager.grabFocus(widget);
             }
@@ -207,22 +210,48 @@
                 }
             }
 
-            function addLine(){
-                widgetManager.releaseFocus(widget);
-                widget = vtkLineWidget.newInstance({
-                    // dependingPoints: [2,2,2,1,1,1],
+            function addBracket(){
+                // widgetManager.releaseFocus(widget);
+                widget = vtkBracketWidget.newInstance({
+                    pointValues: [
+                        // A simple cube
+                        -0.5, -0.5, -0.5, // 0
+                        0.5, -0.5, -0.5, // 1
+                        0.5, 0.5, -0.5, // 2
+                        -0.5, 0.5, -0.5, // 3
+                        -0.5, -0.5, 0.5, // 4
+                        0.5, -0.5, 0.5, // 5
+                        0.5, 0.5, 0.5, // 6
+                        -0.5, 0.5, 0.5, // 7
+                    ],
+                    cellValues: [
+                        4, 0, 1, 2, 3, // bottom face
+                        4, 4, 5, 6, 7, // top face
+                        4, 0, 1, 5, 4, // front face
+                        4, 1, 2, 6, 5, // right face
+                        4, 2, 3, 7, 6, // back face
+                        4, 3, 0, 4, 7, // left face
+                    ],
+                    pointType: 'Float64Array',
+                    generate3DTextureCoordinates: false,
+                    generateFaces: true,
+                    generateLines: false,
                 });
+                console.log(widget)
                 // widget.placeWidget(cube.getOutputData().getBounds());
                 // widget.setPlaceFactor(0);
                 // widgetManager.enablePicking();
                 widgetHandle = widgetManager.addWidget(widget);
+                // console.log(widgetHandle.getRadius())
+                console.log(widgetHandle.getRepresentations()[0].getActor())
+                widgetHandle.setCenterAndRadius([0,0,0], 10)
                 // widgetHandle.placeHandleByCoords([-0.1,0,0],[0.1,0,0])
                 // widgetHandle.getWidgetState().getHandle1().setOrigin([-1,0,0])
                 // widgetHandle.getWidgetState().getHandle2().setOrigin([1,0,0])
                 // widgetHandle.getWidgetState().getBorderHandle().setVisible(false)
                 // console.log(widgetHandle.getWidgetState().getLeftCenterHandle())
 
-                widgetManager.grabFocus(widget);
+                // widgetManager.grabFocus(widget);
             }
 
             function showR(){
@@ -235,13 +264,38 @@
                 fpsMonitor.setRenderWindow(renderWindow);
             }
 
+            function handleFile(event) {
+                const reader = vtkSTLReader.newInstance();
+                const file = event.target.files[0];
+                const mapper = vtkMapper.newInstance({ scalarVisibility: false });
+                const actor = vtkActor.newInstance();
+
+                actor.setMapper(mapper);
+                mapper.setInputConnection(reader.getOutputPort());
+                
+                if (file) {
+                    console.log(file)
+                    const fileReader = new FileReader();
+                    fileReader.onload = (e) => {
+                        console.log(1)
+                        reader.parseAsArrayBuffer(e.target.result);
+                        renderer.addActor(actor);
+                        renderer.resetCamera();
+                        renderWindow.render();
+                    };
+                    fileReader.readAsArrayBuffer(file);
+                    
+                }
+            }
+
             return {
                 vtkContainer,
                 addSphere,
                 showR,
-                addLine,
+                addBracket,
                 addMonitor,
                 removeSphere,
+                handleFile,
                 resolution,
                 numberOfPolys
             }
