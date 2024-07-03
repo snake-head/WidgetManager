@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: zhuyc9
  * @Date: 2022-11-02 21:04:42
- * @LastEditTime: 2024-05-16 15:16:08
+ * @LastEditTime: 2024-07-03 10:55:04
  * @LastEditors: ZhuYichen
  * @Reference: 
 -->
@@ -37,8 +37,8 @@
     import vtkFullScreenRenderWindow from '@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow';
     import vtkGenericRenderWindow from '@kitware/vtk.js/Rendering/Misc/GenericRenderWindow';
     import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
-    // import vtkSphereWidget from '../reDesignVTK/Widgets/Widgets3D/SphereWidget';
-    import vtkSphereWidget from '@kitware/vtk.js/Widgets/Widgets3D/SphereWidget';
+    import vtkSphereWidget from '../reDesignVTK/Widgets/Widgets3D/SphereWidget';
+    // import vtkSphereWidget from '@kitware/vtk.js/Widgets/Widgets3D/SphereWidget';
     // import vtkLineWidget from '../reDesignVTK/Widgets/Widgets3D/LineWidget'
     import vtkLineWidget from '@kitware/vtk.js/Widgets/Widgets3D/LineWidget'
     import vtkBracketWidget from '../reDesignVTK/Widgets/Widgets3D/BracketWidget'
@@ -139,23 +139,23 @@
                 renderer = fullScreenRenderer.getRenderer();
                 renderWindow = fullScreenRenderer.getRenderWindow();
 
-                // cube = vtkCubeSource.newInstance();
-                // cube = vtkSphereSource.newInstance({
-                //     radius: 1.0,
-                //     phiResolution: resolution.value,
-                //     thetaResolution: resolution.value,
-                // });
-                // const polyData = cube.getOutputData();
-                // numberOfPolys.value = polyData.getNumberOfPolys();
-                // console.log(`Number of polygons: ${numberOfPolys.value}`);
-                // const mapper = vtkMapper.newInstance();
-                // const actor = vtkActor.newInstance();
+                cube = vtkCubeSource.newInstance();
+                cube = vtkSphereSource.newInstance({
+                    radius: 1.0,
+                    phiResolution: resolution.value,
+                    thetaResolution: resolution.value,
+                });
+                const polyData = cube.getOutputData();
+                numberOfPolys.value = polyData.getNumberOfPolys();
+                console.log(`Number of polygons: ${numberOfPolys.value}`);
+                const mapper = vtkMapper.newInstance();
+                const actor = vtkActor.newInstance();
 
-                // actor.setMapper(mapper);
-                // mapper.setInputConnection(cube.getOutputPort());
-                // actor.getProperty().setOpacity(0.2);
+                actor.setMapper(mapper);
+                mapper.setInputConnection(cube.getOutputPort());
+                actor.getProperty().setOpacity(0.2);
 
-                // renderer.addActor(actor);
+                renderer.addActor(actor);
 
                 // ----------------------------------------------------------------------------
                 // Widget manager
@@ -183,25 +183,32 @@
 
             function addSphere(){
                 // widgetManager.releaseFocus(widget);
-                // widget = vtkSphereWidget.newInstance({
-                    // dependingPoints: [2,2,2,1,1,1],
-                // });
+                widget = vtkSphereWidget.newInstance({
+                    activeColor: [204, 64, 64],
+                    activeScaleFactor: 1,
+                    behaviorParams: {
+                        dependingPoints: [2,2,2,1,1,1],
+                    }
+                });
                 // widget.placeWidget(cube.getOutputData().getBounds());
                 // widget.setPlaceFactor(0);
                 // widgetManager.enablePicking();
-                // widgetHandle = widgetManager.addWidget(widget);
-                // widgetHandle.setCenterAndRadius([0,0,0], 0)
+                widgetHandle = widgetManager.addWidget(widget);
+                // widgetHandle.setScaleInPixels(false)
+                widgetHandle.setCenter([3,0,0])
                 // widgetHandle.getWidgetState().getBorderHandle().setVisible(false)
                 // console.log(widgetHandle.getWidgetState().getLeftCenterHandle())
 
                 // widgetManager.grabFocus(widget);
 
-                widgetManager.releaseFocus(widget);
-                widget = vtkSphereWidget.newInstance();
+                // widgetManager.releaseFocus(widget);
+                // widget = vtkSphereWidget.newInstance();
                 // widget.placeWidget(cube.getOutputData().getBounds());
-                widgetHandle = widgetManager.addWidget(widget);
-                widgetManager.grabFocus(widget);
+                // widgetHandle = widgetManager.addWidget(widget);
+                // widgetManager.grabFocus(widget);
             }
+
+            
 
             function removeSphere(){
                 if(widgetManager.getWidgets()[0]){
