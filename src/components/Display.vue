@@ -2,14 +2,14 @@
  * @Description: 
  * @Author: zhuyc9
  * @Date: 2022-11-02 21:04:42
- * @LastEditTime: 2024-07-03 10:55:04
+ * @LastEditTime: 2024-07-15 15:48:33
  * @LastEditors: ZhuYichen
  * @Reference: 
 -->
 <template>
     <div id="display">
         <div>
-            <button @click="addSphere">Add SphereWidget</button>
+            <button @click="addRoot">Add SphereWidget</button>
             <!-- <button @click="showR">显示半径</button> -->
             <button @click="addBracket">Add BracketWidget</button>
             <button @click="addMonitor">Add FPSMonitor</button>
@@ -38,6 +38,7 @@
     import vtkGenericRenderWindow from '@kitware/vtk.js/Rendering/Misc/GenericRenderWindow';
     import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
     import vtkSphereWidget from '../reDesignVTK/Widgets/Widgets3D/SphereWidget';
+    import vtkRootWidget from '../reDesignVTK/Widgets/Widgets3D/RootWidget';
     // import vtkSphereWidget from '@kitware/vtk.js/Widgets/Widgets3D/SphereWidget';
     // import vtkLineWidget from '../reDesignVTK/Widgets/Widgets3D/LineWidget'
     import vtkLineWidget from '@kitware/vtk.js/Widgets/Widgets3D/LineWidget'
@@ -141,6 +142,7 @@
 
                 cube = vtkCubeSource.newInstance();
                 cube = vtkSphereSource.newInstance({
+                    center: [3,0,0],
                     radius: 1.0,
                     phiResolution: resolution.value,
                     thetaResolution: resolution.value,
@@ -155,7 +157,7 @@
                 mapper.setInputConnection(cube.getOutputPort());
                 actor.getProperty().setOpacity(0.2);
 
-                renderer.addActor(actor);
+                // renderer.addActor(actor);
 
                 // ----------------------------------------------------------------------------
                 // Widget manager
@@ -163,6 +165,7 @@
 
                 widgetManager = vtkWidgetManager.newInstance();
                 widgetManager.setRenderer(renderer);
+                renderer.resetCameraClippingRange();
 
                 
 
@@ -208,7 +211,17 @@
                 // widgetManager.grabFocus(widget);
             }
 
-            
+            function addRoot(){
+                widget = vtkRootWidget.newInstance({
+                    activeColor: [204, 64, 64],
+                    activeScaleFactor: 1,
+                    behaviorParams: {
+                    }
+                });
+                widgetHandle = widgetManager.addWidget(widget);
+                widgetHandle.setCenter([0,0,0], [0,1,0], [1,0,0])
+                widgetHandle.setScaleInPixels(false)
+            }
 
             function removeSphere(){
                 if(widgetManager.getWidgets()[0]){
@@ -298,6 +311,7 @@
             return {
                 vtkContainer,
                 addSphere,
+                addRoot,
                 showR,
                 addBracket,
                 addMonitor,

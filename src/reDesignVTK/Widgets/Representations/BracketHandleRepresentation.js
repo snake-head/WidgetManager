@@ -4,21 +4,13 @@
  * @Autor: ZhuYichen
  * @Date: 2024-05-10 10:10:42
  * @LastEditors: ZhuYichen
- * @LastEditTime: 2024-05-16 16:07:21
+ * @LastEditTime: 2024-07-09 15:38:56
  */
 import macro from '@kitware/vtk.js/macros.js';
 import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor.js';
-import vtkDataArray from '@kitware/vtk.js/Common/Core/DataArray.js';
 import vtkGlyphRepresentation from '@kitware/vtk.js/Widgets/Representations/GlyphRepresentation.js';
-import vtkGlyph3DMapper from '@kitware/vtk.js/Rendering/Core/Glyph3DMapper.js';
 import vtkCustomSource from '../../Filters/Sources/CustomSource.js';
-import vtkHandleRepresentation from '@kitware/vtk.js/Widgets/Representations/HandleRepresentation';
 import vtkPixelSpaceCallbackMapper from '@kitware/vtk.js/Rendering/Core/PixelSpaceCallbackMapper.js';
-import vtkPolyData from '@kitware/vtk.js/Common/DataModel/PolyData.js';
-import vtkPoints from '@kitware/vtk.js/Common/Core/Points.js';
-import vtkCellArray from '@kitware/vtk.js/Common/Core/CellArray.js';
-import { ScalarMode } from '@kitware/vtk.js/Rendering/Core/Mapper/Constants.js';
-
 
 function vtkBracketHandleRepresentation(publicAPI, model) {
     // Set our className
