@@ -2,7 +2,7 @@
  * @Description: 
  * @Author: zhuyc9
  * @Date: 2022-11-02 21:04:42
- * @LastEditTime: 2024-07-15 15:48:33
+ * @LastEditTime: 2024-08-01 15:08:17
  * @LastEditors: ZhuYichen
  * @Reference: 
 -->
@@ -36,6 +36,8 @@
     import vtkSphereSource from '@kitware/vtk.js/Filters/Sources/SphereSource';
     import vtkFullScreenRenderWindow from '@kitware/vtk.js/Rendering/Misc/FullScreenRenderWindow';
     import vtkGenericRenderWindow from '@kitware/vtk.js/Rendering/Misc/GenericRenderWindow';
+    import vtkWebGPURenderWindow from '@kitware/vtk.js/Rendering/WebGPU/RenderWindow'
+    import vtkRenderer from '@kitware/vtk.js/Rendering/Core/Renderer';
     import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper';
     import vtkSphereWidget from '../reDesignVTK/Widgets/Widgets3D/SphereWidget';
     import vtkRootWidget from '../reDesignVTK/Widgets/Widgets3D/RootWidget';
@@ -43,8 +45,8 @@
     // import vtkLineWidget from '../reDesignVTK/Widgets/Widgets3D/LineWidget'
     import vtkLineWidget from '@kitware/vtk.js/Widgets/Widgets3D/LineWidget'
     import vtkBracketWidget from '../reDesignVTK/Widgets/Widgets3D/BracketWidget'
-    // import vtkWidgetManager from '../reDesignVTK/Widgets/Core/WidgetManager';
-    import vtkWidgetManager from '@kitware/vtk.js/Widgets/Core/WidgetManager';
+    import vtkWidgetManager from '../reDesignVTK/Widgets/Core/WidgetManager';
+    // import vtkWidgetManager from '@kitware/vtk.js/Widgets/Core/WidgetManager';
     import WidgetManagerConstants from '@kitware/vtk.js/Widgets/Core/WidgetManager/Constants';
     import vtkFPSMonitor from '@kitware/vtk.js/Interaction/UI/FPSMonitor';
     import vtkSTLReader from '@kitware/vtk.js/IO/Geometry/STLReader';
@@ -156,8 +158,9 @@
                 actor.setMapper(mapper);
                 mapper.setInputConnection(cube.getOutputPort());
                 actor.getProperty().setOpacity(0.2);
+                actor.setPickable(false)
 
-                // renderer.addActor(actor);
+                renderer.addActor(actor);
 
                 // ----------------------------------------------------------------------------
                 // Widget manager
@@ -197,6 +200,7 @@
                 // widget.setPlaceFactor(0);
                 // widgetManager.enablePicking();
                 widgetHandle = widgetManager.addWidget(widget);
+
                 // widgetHandle.setScaleInPixels(false)
                 widgetHandle.setCenter([3,0,0])
                 // widgetHandle.getWidgetState().getBorderHandle().setVisible(false)
@@ -221,6 +225,10 @@
                 widgetHandle = widgetManager.addWidget(widget);
                 widgetHandle.setCenter([0,0,0], [0,1,0], [1,0,0])
                 widgetHandle.setScaleInPixels(false)
+                console.log(widgetHandle.getRepresentations()[3].getActors())
+                widgetHandle.getRepresentations()[3].getActors()[0].setPickable(false)
+                widgetHandle.getRepresentations()[4].getActors()[0].setPickable(false)
+                widgetHandle.getRepresentations()[5].getActors()[0].setPickable(false)
             }
 
             function removeSphere(){
